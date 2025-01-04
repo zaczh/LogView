@@ -114,9 +114,7 @@ final class LogViewModel: ObservableObject {
     Task { @MainActor in
       status = .loading
     }
-    Task {
-      await self.fetchLogs()
-    }
+    await fetchLogs()
   }
 
   func clear() {
