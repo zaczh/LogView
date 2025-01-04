@@ -75,7 +75,7 @@ final class LogViewModel: ObservableObject {
     load()
   }
 
-  private func fetchLogs() async {
+  nonisolated private func fetchLogs() async {
     do {
         
       let entries = try await logViewFetcher(lastDate)
@@ -112,7 +112,7 @@ final class LogViewModel: ObservableObject {
     Task { @MainActor in
       status = .loading
     }
-    Task.detached {
+    Task {
       await self.fetchLogs()
     }
   }
