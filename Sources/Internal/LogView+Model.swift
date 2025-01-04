@@ -43,7 +43,7 @@ final class LogViewModel: ObservableObject {
     logs.isEmpty
   }
 
-  private var logViewFetcher: (Date?) throws -> [OSLogEntry]
+  private var logViewFetcher: (Date?) async throws -> [OSLogEntry]
   private var logViewPredicate: NSPredicate?
   private var logViewFilter: LogView.FilterEntries
   @Published var filtered: [OSLogEntryLog] = []
@@ -68,7 +68,7 @@ final class LogViewModel: ObservableObject {
     }
   }
 
-  init(logViewFetcher: @escaping (Date?) throws -> [OSLogEntry], logViewPredicate: NSPredicate? = nil, logViewFilter: @escaping LogView.FilterEntries = { _ in true }) {
+  init(logViewFetcher: @escaping (Date?) async throws -> [OSLogEntry], logViewPredicate: NSPredicate? = nil, logViewFilter: @escaping LogView.FilterEntries = { _ in true }) {
     self.logViewFetcher = logViewFetcher
     self.logViewPredicate = logViewPredicate
     self.logViewFilter = logViewFilter
@@ -78,7 +78,7 @@ final class LogViewModel: ObservableObject {
   nonisolated private func fetchLogs() async {
     do {
         
-      let entries = try logViewFetcher(lastDate)
+      let entries = try await logViewFetcher(lastDate)
 
       let filteredEntries = entries.compactMap { entry -> OSLogEntryLog? in
         guard let log = entry as? OSLogEntryLog, 
