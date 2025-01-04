@@ -89,7 +89,7 @@ struct LogViewItem: View {
   var text: AttributedString {
     if #available(iOS 16.0, *) {
       if !model.searchText.isEmpty,
-         let attr = try? AttributedString(markdown: log.composedMessage.replacing(model.searchText, with: "[\(model.searchText)](\(model.searchText))"))  {
+         let attr = try? AttributedString(markdown: log.composedMessage.replacingOccurrences(of: model.searchText, with: "[\(model.searchText)](\(model.searchText))"))  {
         return attr
       } else {
         return AttributedString(log.composedMessage)

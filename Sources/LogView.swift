@@ -9,16 +9,16 @@ import os
 
 private extension View {
   func sheetDefaultSettings() -> some View {
-    if #available(iOS 16.0, *) {
+    if #available(iOS 16.0, macOS 13.0, *) {
       return presentationDetents([.large])
     } else { return self }
   }
 }
 
-@available(iOS 15.0, *)
+@available(iOS 15.0, macOS 11.0, *)
 public struct LogView: View {
 
-  @StateObject private var model = LogViewModel()
+  @StateObject private var model: LogViewModel
   @State private var filterPresented = false
   @State private var selected: OSLogEntryLog?
 
@@ -34,7 +34,9 @@ public struct LogView: View {
     return grouped
   }
 
-  public init() {}
+  public init(predicate: NSPredicate? = nil) {
+      _model = .init(wrappedValue: LogViewModel(predicate: predicate))
+  }
   
   public var body: some View {
     Group {
@@ -67,7 +69,7 @@ public struct LogView: View {
         .sheetDefaultSettings()
     })
     .toolbar {
-      ToolbarItem(placement: .navigationBarTrailing) {
+        ToolbarItem(placement: .primaryAction) {
         Button {
           filterPresented.toggle()
         } label: {
@@ -75,7 +77,7 @@ public struct LogView: View {
         }
       }
 
-      ToolbarItem(placement: .navigationBarLeading) {
+      ToolbarItem(placement: .destructiveAction) {
         Button {
           model.clear()
         } label: {
@@ -83,18 +85,18 @@ public struct LogView: View {
         }
       }
 
-      ToolbarItem(placement: .navigationBarLeading) {
+      ToolbarItem(placement: .navigation) {
         Text("\(model.filteredAndSearched.count)")
           .fontWeight(.ultraLight)
       }
 
-      ToolbarItem(placement: .navigationBarTrailing) {
+      ToolbarItem(placement: .primaryAction) {
         ReloadButton(isLoading: $model.isLoading, reload: model.load)
       }
     }
     .environmentObject(model)
     .searchable(text: $model.searchText, placement: .sidebar)
-    .navigationBarTitleDisplayMode(.inline)
+//    .navigationBarTitleDisplayMode(.inline)
   }
 }
 

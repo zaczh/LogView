@@ -8,9 +8,6 @@ import OSLog
 @available(iOS 15.0, *)
 extension LogView {
 
-  /// Predicate for feathing entries from OSLogStore
-  public static var predicate: NSPredicate?
-
   public typealias FilterEntries = (OSLogEntryLog) -> Bool
 
   /// Additional filter after fetcnig from store. Not all condition can be used when filter with predicate.

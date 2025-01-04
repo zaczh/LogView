@@ -76,7 +76,7 @@ struct LogViewDetail: View {
 
         Spacer()
 
-        if #available(iOS 16.0, *) {
+        if #available(iOS 16.0, macOS 13.0, *) {
           ShareLink(item: shareItem) {
             Image(systemName: "square.and.arrow.up")
               .resizable()
@@ -114,7 +114,7 @@ struct LogViewDetail: View {
           .padding(.horizontal)
       }
     }
-    .padding(.top)
+    .padding(.vertical)
   }
 
   func titled(_ title: String, systemName: String,  @ViewBuilder _ builder: () -> some View) -> some View {
