@@ -58,7 +58,7 @@ public struct LogView: View {
           }
         }
         .refreshable {
-          model.load()
+          await model.load()
         }
       }
     }

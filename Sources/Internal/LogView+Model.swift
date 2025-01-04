@@ -72,7 +72,9 @@ final class LogViewModel: ObservableObject {
     self.logViewFetcher = logViewFetcher
     self.logViewPredicate = logViewPredicate
     self.logViewFilter = logViewFilter
-    load()
+    Task {
+      await load()
+    }
   }
 
   nonisolated private func fetchLogs() async {
@@ -108,7 +110,7 @@ final class LogViewModel: ObservableObject {
     }
   }
 
-  func load() {
+  func load() async {
     Task { @MainActor in
       status = .loading
     }

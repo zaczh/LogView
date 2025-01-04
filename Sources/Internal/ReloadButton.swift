@@ -9,10 +9,14 @@ struct ReloadButton: View {
   @State private var isReloadRotating = 0.0
 
   var isLoading: Bool
-  var reload: () -> Void
+  var reload: () async -> Void
 
   var body: some View {
-    Button(action: reload) {
+      Button(action: {
+        Task {
+          await reload()
+        }
+      }) {
       Image(systemName: "arrow.triangle.2.circlepath")
         .rotationEffect(.degrees(isReloadRotating))
     }
