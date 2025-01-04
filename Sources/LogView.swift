@@ -73,12 +73,13 @@ public struct LogView: View {
         .sheetDefaultSettings()
     })
     .toolbar {
-        ToolbarItem(placement: .primaryAction) {
+      ToolbarItem(placement: .primaryAction) {
         Button {
           filterPresented.toggle()
         } label: {
           Image(systemName: model.filter != .empty ? "tag.fill" : "tag")
         }
+        .disabled(model.status.isFailed)
       }
 
       ToolbarItem(placement: .destructiveAction) {
@@ -87,6 +88,7 @@ public struct LogView: View {
         } label: {
           Image(systemName: "trash")
         }
+        .disabled(model.status.isFailed)
       }
 
       ToolbarItem(placement: .navigation) {
@@ -96,6 +98,7 @@ public struct LogView: View {
 
       ToolbarItem(placement: .primaryAction) {
         ReloadButton(isLoading: model.status == .loading, reload: model.load)
+              .disabled(model.status.isFailed)
       }
     }
     .environmentObject(model)

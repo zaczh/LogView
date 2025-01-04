@@ -29,6 +29,14 @@ final class LogViewModel: ObservableObject {
         case loading
         case loaded
         case failed(Error)
+        
+        var isFailed: Bool {
+            if case .failed = self {
+                return true
+            } else {
+                return false
+            }
+        }
     }
     
   private var logs: [OSLogEntryLog] = [] {
