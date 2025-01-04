@@ -34,7 +34,7 @@ public struct LogView: View {
     return grouped
   }
 
-  public init(fetcher: @escaping (Date?) async throws -> [OSLogEntry], predicate: NSPredicate? = nil) {
+  public init(fetcher: @escaping (Date?) throws -> [OSLogEntry], predicate: NSPredicate? = nil) {
     _model = .init(wrappedValue: LogViewModel(logViewFetcher: fetcher, logViewPredicate: predicate))
   }
   
