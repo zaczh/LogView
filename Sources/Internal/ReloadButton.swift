@@ -17,13 +17,13 @@ struct ReloadButton: View {
         .rotationEffect(.degrees(isReloadRotating))
     }
     .disabled(isLoading)
-    .onAppear { animateIfNeed(isLoaging: isLoading) }
+    .onAppear { animateIfNeed(isLoading: isLoading) }
     .onChange(of: isLoading, perform: { value in
-      animateIfNeed(isLoaging: value)
+      animateIfNeed(isLoading: value)
     })
   }
 
-  private func animateIfNeed(isLoaging: Bool) {
+  private func animateIfNeed(isLoading: Bool) {
     if isLoading {
       withAnimation(.linear(duration: 3)
         .repeatForever(autoreverses: false)) {
