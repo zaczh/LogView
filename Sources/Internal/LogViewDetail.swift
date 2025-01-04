@@ -153,7 +153,9 @@ struct LogViewDetail_Previews: PreviewProvider {
                         level: 2,
                         shareItem: "Message"
           )
-          .environmentObject(LogViewModel())
+          .environmentObject(LogViewModel(logViewFetcher: { date in
+              return []
+          }))
         }
       })
   }

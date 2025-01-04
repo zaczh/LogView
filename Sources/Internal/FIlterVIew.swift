@@ -71,7 +71,9 @@ struct FilterView: View {
 @available(iOS 15.0, *)
 struct FilterView_Previews: PreviewProvider {
   struct Preview: View {
-    @StateObject var model = LogViewModel()
+      @StateObject var model = LogViewModel(logViewFetcher: { date in
+          return []
+      })
 
     var body: some View {
       model.filterStatistic = LogFilter.TagsStatistic(levels: [2: 2])

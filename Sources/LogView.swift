@@ -34,13 +34,16 @@ public struct LogView: View {
     return grouped
   }
 
-  public init(predicate: NSPredicate? = nil) {
-      _model = .init(wrappedValue: LogViewModel(logViewPredicate: predicate))
+  public init(fetcher: @escaping (Date?) async throws -> [OSLogEntry], predicate: NSPredicate? = nil) {
+    _model = .init(wrappedValue: LogViewModel(logViewFetcher: fetcher, logViewPredicate: predicate))
   }
   
   public var body: some View {
     Group {
-      if model.isLoading && model.logsIsEmpty {
+      if case .failed(let error) = model.status {
+        Text("Error: \(error.localizedDescription)")
+              .padding()
+      } else if model.status == .loading && model.logsIsEmpty {
         ProgressView()
       } else {
         ScrollView {
@@ -91,7 +94,7 @@ public struct LogView: View {
       }
 
       ToolbarItem(placement: .primaryAction) {
-        ReloadButton(isLoading: $model.isLoading, reload: model.load)
+        ReloadButton(isLoading: model.status == .loading, reload: model.load)
       }
     }
     .environmentObject(model)
@@ -108,7 +111,7 @@ fileprivate extension View {
 }
 
 @available(iOS 15.0, *)
-extension OSLogEntryLog: Identifiable {
+extension OSLogEntryLog: @retroactive Identifiable {
   public var id: String {
     self.description
   }
@@ -118,7 +121,9 @@ extension OSLogEntryLog: Identifiable {
 struct LogsView_Previews: PreviewProvider {
   static var previews: some View {
     NavigationView {
-      LogView()
+        LogView(fetcher: { date in
+            return []
+        })
     }
   }
 }

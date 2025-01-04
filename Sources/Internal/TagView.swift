@@ -193,7 +193,9 @@ extension EnvironmentValues {
 struct TagView_Previews: PreviewProvider {
 
   struct ButtonPreview: View {
-    @StateObject var model = LogViewModel()
+    @StateObject var model = LogViewModel(logViewFetcher: { date in
+        return []
+    })
 
     var body: some View {
       VStack {

@@ -8,7 +8,7 @@ struct ReloadButton: View {
 
   @State private var isReloadRotating = 0.0
 
-  @Binding var isLoading: Bool
+  var isLoading: Bool
   var reload: () -> Void
 
   var body: some View {

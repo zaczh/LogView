@@ -12,7 +12,25 @@ private let logger = Logger(subsystem: "com.logview", category: "logger")
 
 @available(iOS 15.0, *)
 final class LogViewModel: ObservableObject {
-
+    enum Status: Equatable {
+        static func == (lhs: LogViewModel.Status, rhs: LogViewModel.Status) -> Bool {
+            switch (lhs, rhs) {
+            case (.loading, .loading):
+                return true
+            case (.loaded, .loaded):
+                return true
+            case (.failed, .failed):
+                return true
+            case (_, _):
+                return false
+            }
+        }
+        
+        case loading
+        case loaded
+        case failed(Error)
+    }
+    
   private var logs: [OSLogEntryLog] = [] {
     didSet {
       var stat = LogFilter.TagsStatistic()
@@ -25,11 +43,13 @@ final class LogViewModel: ObservableObject {
     logs.isEmpty
   }
 
+  private var logViewFetcher: (Date?) async throws -> [OSLogEntry]
   private var logViewPredicate: NSPredicate?
   private var logViewFilter: LogView.FilterEntries
   @Published var filtered: [OSLogEntryLog] = []
   @Published var filterStatistic = LogFilter.TagsStatistic()
-  @Published var isLoading: Bool = false
+    
+  @Published var status: LogViewModel.Status = .loading
   @Published var searchText: String = ""
 
   var filteredAndSearched: [OSLogEntryLog] {
@@ -48,30 +68,22 @@ final class LogViewModel: ObservableObject {
     }
   }
 
-  private static let store = try? OSLogStore(scope: .currentProcessIdentifier)
-
-  init(logViewPredicate: NSPredicate? = nil, logViewFilter: @escaping LogView.FilterEntries = { _ in true }) {
+  init(logViewFetcher: @escaping (Date?) async throws -> [OSLogEntry], logViewPredicate: NSPredicate? = nil, logViewFilter: @escaping LogView.FilterEntries = { _ in true }) {
+    self.logViewFetcher = logViewFetcher
     self.logViewPredicate = logViewPredicate
     self.logViewFilter = logViewFilter
     load()
   }
 
-  private func fetchLogs() {
-    guard let store = LogViewModel.store else { return }
-
-    var position: OSLogPosition?
-    if let lastDate = lastDate {
-      let ti = lastDate.timeIntervalSinceNow
-      position = store.position(timeIntervalSinceEnd: ti)
-    }
-
+  private func fetchLogs() async {
     do {
-
-      let entries = try store.getEntries(at: position, matching: logViewPredicate)
+        
+      let entries = try await logViewFetcher(lastDate)
 
       let filteredEntries = entries.compactMap { entry -> OSLogEntryLog? in
         guard let log = entry as? OSLogEntryLog, 
                 log.date.timeIntervalSince1970 > (lastDate?.timeIntervalSince1970 ?? 0 ),
+                logViewPredicate?.evaluate(with: log) != false,
               logViewFilter(log) else { return nil }
         return log
       }
@@ -85,18 +97,23 @@ final class LogViewModel: ObservableObject {
 
       Task { @MainActor in
         self.logs.append(contentsOf: filteredEntries)
-        self.isLoading = false
+          self.status = .loaded
         self.lastDate = self.logs.last?.date
       }
     } catch {
       logger.error("Can't fetch entries: \(error)")
+        Task { @MainActor in
+          self.status = .failed(error)
+        }
     }
   }
 
   func load() {
-    isLoading = true
-    DispatchQueue.global(qos: .userInteractive).async { [weak self] in
-      self?.fetchLogs()
+    Task { @MainActor in
+      status = .loading
+    }
+    Task.detached {
+      await self.fetchLogs()
     }
   }
 
