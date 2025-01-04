@@ -35,7 +35,7 @@ public struct LogView: View {
   }
 
   public init(predicate: NSPredicate? = nil) {
-      _model = .init(wrappedValue: LogViewModel(predicate: predicate))
+      _model = .init(wrappedValue: LogViewModel(logViewPredicate: predicate))
   }
   
   public var body: some View {

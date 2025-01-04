@@ -25,7 +25,8 @@ final class LogViewModel: ObservableObject {
     logs.isEmpty
   }
 
-  var predicate: NSPredicate?
+  private var logViewPredicate: NSPredicate?
+  private var logViewFilter: LogView.FilterEntries
   @Published var filtered: [OSLogEntryLog] = []
   @Published var filterStatistic = LogFilter.TagsStatistic()
   @Published var isLoading: Bool = false
@@ -49,8 +50,9 @@ final class LogViewModel: ObservableObject {
 
   private static let store = try? OSLogStore(scope: .currentProcessIdentifier)
 
-  init(predicate: NSPredicate? = nil) {
-    self.predicate = predicate
+  init(logViewPredicate: NSPredicate? = nil, logViewFilter: @escaping LogView.FilterEntries = { _ in true }) {
+    self.logViewPredicate = logViewPredicate
+    self.logViewFilter = logViewFilter
     load()
   }
 
@@ -65,12 +67,12 @@ final class LogViewModel: ObservableObject {
 
     do {
 
-      let entries = try store.getEntries(at: position, matching: predicate)
+      let entries = try store.getEntries(at: position, matching: logViewPredicate)
 
       let filteredEntries = entries.compactMap { entry -> OSLogEntryLog? in
         guard let log = entry as? OSLogEntryLog, 
                 log.date.timeIntervalSince1970 > (lastDate?.timeIntervalSince1970 ?? 0 ),
-              LogView.filterEntries(log) else { return nil }
+              logViewFilter(log) else { return nil }
         return log
       }
 
