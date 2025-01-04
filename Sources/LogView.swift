@@ -42,6 +42,7 @@ public struct LogView: View {
     Group {
       if case .failed(let error) = model.status {
         Text("Error: \(error.localizedDescription)")
+              .lineLimit(nil)
               .padding()
       } else if model.status == .loading && model.logsIsEmpty {
         ProgressView()
